@@ -428,6 +428,10 @@ void RetroEngine::Init()
     }
 #endif
 
+   if (strstr(gameWindowText, "Sonic CD")) {
+        gameType = GAME_SONICCD;
+   }
+
 #if !RETRO_USE_ORIGINAL_CODE
     bool skipStore = skipStartMenu;
     skipStartMenu  = skipStart;

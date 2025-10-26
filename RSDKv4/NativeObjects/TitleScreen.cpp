@@ -118,27 +118,51 @@ void TitleScreen_Create(void *objPtr)
     self->labelPtr->x    = 64.0;
     self->labelPtr->y    = -96.0;
     self->introTextureID = LoadTexture("Data/Game/Menu/Intro.png", TEXFMT_RGBA5551);
-
-    int package = 0;
-    switch (Engine.globalBoxRegion) {
-        case REGION_JP:
-            package         = LoadTexture("Data/Game/Models/Package_JP.png", TEXFMT_RGBA5551);
-            self->introMesh = LoadMesh("Data/Game/Models/Intro.bin", self->introTextureID);
-            self->boxMesh   = LoadMesh("Data/Game/Models/JPBox.bin", package);
-            self->cartMesh  = LoadMesh("Data/Game/Models/JPCartridge.bin", package);
-            break;
-        case REGION_US:
-            package         = LoadTexture("Data/Game/Models/Package_US.png", TEXFMT_RGBA5551);
-            self->introMesh = LoadMesh("Data/Game/Models/Intro.bin", self->introTextureID);
-            self->boxMesh   = LoadMesh("Data/Game/Models/Box.bin", package);
-            self->cartMesh  = LoadMesh("Data/Game/Models/Cartridge.bin", package);
-            break;
-        case REGION_EU:
-            package         = LoadTexture("Data/Game/Models/Package_EU.png", TEXFMT_RGBA5551);
-            self->introMesh = LoadMesh("Data/Game/Models/Intro.bin", self->introTextureID);
-            self->boxMesh   = LoadMesh("Data/Game/Models/Box.bin", package);
-            self->cartMesh  = LoadMesh("Data/Game/Models/Cartridge.bin", package);
-            break;
+    if (Engine.gameType != GAME_SONICCD) {
+        int package = 0;
+        switch (Engine.globalBoxRegion) {
+            case REGION_JP:
+                package         = LoadTexture("Data/Game/Models/Package_JP.png", TEXFMT_RGBA5551);
+                self->introMesh = LoadMesh("Data/Game/Models/Intro.bin", self->introTextureID);
+                self->boxMesh   = LoadMesh("Data/Game/Models/JPBox.bin", package);
+                self->cartMesh  = LoadMesh("Data/Game/Models/JPCartridge.bin", package);
+                break;
+            case REGION_US:
+                package         = LoadTexture("Data/Game/Models/Package_US.png", TEXFMT_RGBA5551);
+                self->introMesh = LoadMesh("Data/Game/Models/Intro.bin", self->introTextureID);
+                self->boxMesh   = LoadMesh("Data/Game/Models/Box.bin", package);
+                self->cartMesh  = LoadMesh("Data/Game/Models/Cartridge.bin", package);
+                break;
+            case REGION_EU:
+                package         = LoadTexture("Data/Game/Models/Package_EU.png", TEXFMT_RGBA5551);
+                self->introMesh = LoadMesh("Data/Game/Models/Intro.bin", self->introTextureID);
+                self->boxMesh   = LoadMesh("Data/Game/Models/Box.bin", package);
+                self->cartMesh  = LoadMesh("Data/Game/Models/Cartridge.bin", package);
+                break;
+        }
+    }
+    else {
+        int package = 0;
+        switch (Engine.globalBoxRegion) {
+            case REGION_JP:
+                package         = LoadTexture("Data/Game/Models/DiscJP_Transparent.png", TEXFMT_RGBA5551);
+                self->introMesh = LoadMesh("Data/Game/Models/Intro.bin", self->introTextureID);
+                self->boxMesh   = LoadMesh("Data/Game/Models/JPBox.bin", package);
+                self->cartMesh  = LoadMesh("Data/Game/Models/MegaCDMedia.bin", package);
+                break;
+            case REGION_US:
+                package         = LoadTexture("Data/Game/Models/DiscJP_Transparent.png", TEXFMT_RGBA5551);
+                self->introMesh = LoadMesh("Data/Game/Models/Intro.bin", self->introTextureID);
+                self->boxMesh   = LoadMesh("Data/Game/Models/Box.bin", package);
+                self->cartMesh  = LoadMesh("Data/Game/Models/MegaCDMedia.bin", package);
+                break;
+            case REGION_EU:
+                package         = LoadTexture("Data/Game/Models/DiscJP_Transparent.png", TEXFMT_RGBA5551);
+                self->introMesh = LoadMesh("Data/Game/Models/Intro.bin", self->introTextureID);
+                self->boxMesh   = LoadMesh("Data/Game/Models/Box.bin", package);
+                self->cartMesh  = LoadMesh("Data/Game/Models/MegaCDMedia.bin", package);
+                break;
+        }
     }
 
     SetMeshAnimation(self->boxMesh, &self->meshAnimator, 16, 16, 0.0);
