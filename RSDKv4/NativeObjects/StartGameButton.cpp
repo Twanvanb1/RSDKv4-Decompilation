@@ -27,17 +27,17 @@ void StartGameButton_Create(void *objPtr)
         int package = 0;
         switch (Engine.globalBoxRegion) {
             case REGION_JP:
-                package        = LoadTexture("Data/Game/Models/DiscJP_Transparent.png", TEXFMT_RGBA5551);
+                package        = LoadTexture("Data/Game/Models/DiscJP.png", TEXFMT_RGBA5551);
                 self->meshCart = LoadMesh("Data/Game/Models/MegaCDMedia.bin", package);
                 break;
 
             case REGION_US:
-                package        = LoadTexture("Data/Game/Models/DiscJP_Transparent.png", TEXFMT_RGBA5551);
+                package        = LoadTexture("Data/Game/Models/DiscJP.png", TEXFMT_RGBA5551);
                 self->meshCart = LoadMesh("Data/Game/Models/MegaCDMedia.bin", package);
                 break;
 
             case REGION_EU:
-                package        = LoadTexture("Data/Game/Models/DiscJP_Transparent.png", TEXFMT_RGBA5551);
+                package        = LoadTexture("Data/Game/Models/DiscJP.png", TEXFMT_RGBA5551);
                 self->meshCart = LoadMesh("Data/Game/Models/MegaCDMedia.bin", package);
                 break;
         }

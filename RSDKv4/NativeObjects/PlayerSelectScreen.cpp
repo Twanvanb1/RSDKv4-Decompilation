@@ -21,8 +21,11 @@ void PlayerSelectScreen_Create(void *objPtr)
     SetStringToFont(self->textTails, strTails, FONT_TEXT);
     self->tailsX = GetTextWidth(self->textTails, FONT_TEXT, 0.2) * -0.5;
 
-    SetStringToFont(self->textKnux, strKnuckles, FONT_TEXT);
-    self->knuxX = (GetTextWidth(self->textKnux, FONT_TEXT, 0.2) * -0.5) + 88.0;
+    if (Engine.gameType != GAME_SONICCD) {
+        SetStringToFont(self->textKnux, strKnuckles, FONT_TEXT);
+        self->knuxX = (GetTextWidth(self->textKnux, FONT_TEXT, 0.2) * -0.5) + 88.0;
+     }
+    
 
     self->meshPanel = LoadMesh("Data/Game/Models/Panel.bin", 255);
     SetMeshVertexColors(self->meshPanel, 0, 0, 0, 0xC0);
@@ -77,33 +80,50 @@ void PlayerSelectScreen_Main(void *objPtr)
                     usePhysicalControls = false;
                 }
                 else {
-                    if (keyPress.left) {
-                        if (saveGame->knuxUnlocked) {
-                            PlaySfxByName("Menu Move", false);
-                            if (--self->playerID < SAVESEL_SONIC)
-                                self->playerID = SAVESEL_KNUX;
+                    if (Engine.gameType != GAME_SONICCD) {
+                        if (keyPress.left) {
+                            if (saveGame->knuxUnlocked) {
+                                PlaySfxByName("Menu Move", false);
+                                if (--self->playerID < SAVESEL_SONIC)
+                                    self->playerID = SAVESEL_KNUX;
+                            }
+                            else if (saveGame->tailsUnlocked) {
+                                PlaySfxByName("Menu Move", false);
+                                if (--self->playerID > SAVESEL_SONIC)
+                                    self->playerID = SAVESEL_TAILS;
+                            }
                         }
-                        else if (saveGame->tailsUnlocked) {
-                            PlaySfxByName("Menu Move", false);
-                            if (--self->playerID > SAVESEL_SONIC)
-                                self->playerID = SAVESEL_TAILS;
+                        else if (keyPress.right) {
+                            if (saveGame->knuxUnlocked) {
+                                PlaySfxByName("Menu Move", false);
+
+                                if (++self->playerID > SAVESEL_KNUX)
+                                    self->playerID = SAVESEL_SONIC;
+                            }
+                            else if (saveGame->tailsUnlocked) {
+                                PlaySfxByName("Menu Move", false);
+
+                                if (++self->playerID > SAVESEL_TAILS)
+                                    self->playerID = SAVESEL_SONIC;
+                            }
+                            else {
+                                self->playerID = SAVESEL_SONIC;
+                            }
                         }
                     }
-                    else if (keyPress.right) {
-                        if (saveGame->knuxUnlocked) {
+                    else {
+                        if (keyPress.left) {
                             PlaySfxByName("Menu Move", false);
-
-                            if (++self->playerID > SAVESEL_KNUX)
+                            --self->playerID;
+                            if (self->playerID != SAVESEL_SONIC && self->playerID != SAVESEL_TAILS)
                                 self->playerID = SAVESEL_SONIC;
                         }
-                        else if (saveGame->tailsUnlocked) {
+                        else if (keyPress.right) {
                             PlaySfxByName("Menu Move", false);
 
-                            if (++self->playerID > SAVESEL_TAILS)
-                                self->playerID = SAVESEL_SONIC;
-                        }
-                        else {
-                            self->playerID = SAVESEL_SONIC;
+                            ++self->playerID;
+                            if (self->playerID != SAVESEL_SONIC && self->playerID != SAVESEL_TAILS)
+                                self->playerID = SAVESEL_TAILS;
                         }
                     }
                     if (keyPress.start || keyPress.A) {
@@ -120,36 +140,54 @@ void PlayerSelectScreen_Main(void *objPtr)
             }
             else {
                 if (touches > 0) {
-                    if (CheckTouchRect(-88.0, 24.0, 40.0, 40.0) < 0) {
-                        if (self->playerID == SAVESEL_SONIC)
-                            self->playerID = SAVESEL_NONE;
-                    }
-                    else {
-                        self->playerID = SAVESEL_SONIC;
-                    }
-                    if (saveGame->tailsUnlocked) {
-                        if (CheckTouchRect(-84.0, -64.0, 16.0, 16.0) < 0) {
-                            if (self->playerID == SAVESEL_ST)
-                                self->playerID = SAVESEL_SONIC;
+                    if (Engine.gameType != GAME_SONICCD) {
+                        if (CheckTouchRect(-88.0, 24.0, 40.0, 40.0) < 0) {
+                            if (self->playerID == SAVESEL_SONIC)
+                                self->playerID = SAVESEL_NONE;
                         }
                         else {
-                            self->playerID = SAVESEL_ST;
+                            self->playerID = SAVESEL_SONIC;
                         }
-                        if (CheckTouchRect(0.0, -16.0, 40.0, 40.0) < 0) {
+                        if (saveGame->tailsUnlocked) {
+                            if (CheckTouchRect(-84.0, -64.0, 16.0, 16.0) < 0) {
+                                if (self->playerID == SAVESEL_ST)
+                                    self->playerID = SAVESEL_SONIC;
+                            }
+                            else {
+                                self->playerID = SAVESEL_ST;
+                            }
+                            if (CheckTouchRect(0.0, -16.0, 40.0, 40.0) < 0) {
+                                if (self->playerID == SAVESEL_TAILS)
+                                    self->playerID = SAVESEL_NONE;
+                            }
+                            else {
+                                self->playerID = SAVESEL_TAILS;
+                            }
+                        }
+                        if (saveGame->knuxUnlocked) {
+                            if (CheckTouchRect(88.0, 24.0, 40.0, 40.0) < 0) {
+                                if (self->playerID == SAVESEL_KNUX)
+                                    self->playerID = SAVESEL_NONE;
+                            }
+                            else {
+                                self->playerID = SAVESEL_KNUX;
+                            }
+                        }
+                    }
+                    else {
+                        if (CheckTouchRect(-88.0, 24.0, 40.0, 40.0) < 0) {
+                            if (self->playerID == SAVESEL_SONIC)
+                                self->playerID = SAVESEL_NONE;
+                        }
+                        else {
+                            self->playerID = SAVESEL_SONIC;
+                        }
+                        if (CheckTouchRect(88.0, 24.0, 40.0, 40.0) < 0) {
                             if (self->playerID == SAVESEL_TAILS)
                                 self->playerID = SAVESEL_NONE;
                         }
                         else {
                             self->playerID = SAVESEL_TAILS;
-                        }
-                    }
-                    if (saveGame->knuxUnlocked) {
-                        if (CheckTouchRect(88.0, 24.0, 40.0, 40.0) < 0) {
-                            if (self->playerID == SAVESEL_KNUX)
-                                self->playerID = SAVESEL_NONE;
-                        }
-                        else {
-                            self->playerID = SAVESEL_KNUX;
                         }
                     }
                     self->backPressed = CheckTouchRect(128.0, -92.0, 32.0, 32.0) >= 0;
@@ -287,95 +325,141 @@ void PlayerSelectScreen_Main(void *objPtr)
     }
 
     SetRenderVertexColor(255, 255, 255);
-    RenderImage(-88.0, 32.0, 8.0, 0.3, 0.3, 128.0, 128.0, 256.0, 256.0, 0.0, 0.0, 255, self->texturePlayerSel);
-    if ((self->playerID == SAVESEL_TAILS || self->playerID == SAVESEL_ST) && self->flag) {
-        SetRenderVertexColor(0, 96, 0xFF);
-    }
-    else {
-        SetRenderVertexColor(0, 0x80, 0xFF);
-        RenderImage(0.0, -12.0, 8.0, 0.3, 0.3, 128.0, 128.0, 256.0, 256.0, 256.0, 256.0, 255, self->texturePlayerSel);
-    }
-    if (self->playerID == SAVESEL_TAILS && usePhysicalControls) {
-        RenderImage(0.0, -12.0, 8.0, 0.325, 0.325, 128.0, 128.0, 256.0, 256.0, 256.0, 256.0, 0xFF, self->texturePlayerSel);
-    }
-    else {
-        RenderImage(0.0, -12.0, 8.0, 0.3, 0.3, 128.0, 128.0, 256.0, 256.0, 256.0, 256.0, 0xFF, self->texturePlayerSel);
-    }
+    if (Engine.gameType != GAME_SONICCD) {
+        RenderImage(-88.0, 32.0, 8.0, 0.3, 0.3, 128.0, 128.0, 256.0, 256.0, 0.0, 0.0, 255, self->texturePlayerSel);
+        if ((self->playerID == SAVESEL_TAILS || self->playerID == SAVESEL_ST) && self->flag) {
+            SetRenderVertexColor(0, 96, 0xFF);
+        }
+        else {
+            SetRenderVertexColor(0, 0x80, 0xFF);
+            RenderImage(0.0, -12.0, 8.0, 0.3, 0.3, 128.0, 128.0, 256.0, 256.0, 256.0, 256.0, 255, self->texturePlayerSel);
+        }
+        if (self->playerID == SAVESEL_TAILS && usePhysicalControls) {
+            RenderImage(0.0, -12.0, 8.0, 0.325, 0.325, 128.0, 128.0, 256.0, 256.0, 256.0, 256.0, 0xFF, self->texturePlayerSel);
+        }
+        else {
+            RenderImage(0.0, -12.0, 8.0, 0.3, 0.3, 128.0, 128.0, 256.0, 256.0, 256.0, 256.0, 0xFF, self->texturePlayerSel);
+        }
 
-    if (saveGame->tailsUnlocked)
-        SetRenderVertexColor(255, 255, 255);
-    else
-        SetRenderVertexColor(0, 0, 0);
-    RenderImage(0.0, -8.0, 8.0, 0.3, 0.3, 128.0, 128.0, 256.0, 256.0, 256.0, 0.0, 255, self->texturePlayerSel);
-    if (self->playerID == SAVESEL_KNUX && self->flag) {
-        SetRenderVertexColor(0, 128, 0);
-        if (usePhysicalControls) {
+        if (saveGame->tailsUnlocked)
+            SetRenderVertexColor(255, 255, 255);
+        else
+            SetRenderVertexColor(0, 0, 0);
+        RenderImage(0.0, -8.0, 8.0, 0.3, 0.3, 128.0, 128.0, 256.0, 256.0, 256.0, 0.0, 255, self->texturePlayerSel);
+    }
+    else {
+        RenderImage(-88.0, 32.0, 8.0, 0.3, 0.3, 128.0, 128.0, 256.0, 256.0, 0.0, 0.0, 255, self->texturePlayerSel);
+        if ((self->playerID == SAVESEL_TAILS || self->playerID == SAVESEL_ST) && self->flag) {
+            SetRenderVertexColor(0, 96, 0xFF);
+        }
+        else {
+            SetRenderVertexColor(0, 0x80, 0xFF);
+            RenderImage(88.0, 28.0, 8.0, 0.3, 0.3, 128.0, 128.0, 256.0, 256.0, 256.0, 256.0, 255, self->texturePlayerSel);
+        }
+        if (self->playerID == SAVESEL_TAILS && usePhysicalControls) {
             RenderImage(88.0, 28.0, 8.0, 0.325, 0.325, 128.0, 128.0, 256.0, 256.0, 256.0, 256.0, 0xFF, self->texturePlayerSel);
         }
         else {
             RenderImage(88.0, 28.0, 8.0, 0.3, 0.3, 128.0, 128.0, 256.0, 256.0, 256.0, 256.0, 0xFF, self->texturePlayerSel);
         }
-    }
-    else {
-        SetRenderVertexColor(0, 144, 0);
-        RenderImage(88.0, 28.0, 8.0, 0.3, 0.3, 128.0, 128.0, 256.0, 256.0, 256.0, 256.0, 0xFF, self->texturePlayerSel);
+
+        if (saveGame->tailsUnlocked)
+            SetRenderVertexColor(255, 255, 255);
+        else
+            SetRenderVertexColor(0, 0, 0);
+        RenderImage(88.0, 32.0, 8.0, 0.3, 0.3, 128.0, 128.0, 256.0, 256.0, 256.0, 0.0, 255, self->texturePlayerSel);
     }
 
-    if (saveGame->knuxUnlocked)
-        SetRenderVertexColor(0xFF, 0xFF, 0xFF);
-    else
-        SetRenderVertexColor(0, 0, 0);
-    RenderImage(88.0, 32.0, 8.0, 0.3, 0.3, 128.0, 128.0, 256.0, 256.0, 0.0, 256.0, 0xFF, self->texturePlayerSel);
-
-    if (saveGame->tailsUnlocked) {
-        if (self->playerID == SAVESEL_ST && self->flag) {
-            SetRenderVertexColor(255, 64, 0);
-            RenderImage(-88.0, -56.0, 8.0, 0.135, 0.135, 128.0, 128.0, 256.0, 256.0, 256.0, 256.0, 0xFF, self->texturePlayerSel);
-            RenderRect(-96.0, -54.0, 8.0, 16.0, 4.0, 0xFF, 255, 0x40, 0xFF);
-            RenderRect(-90.0, -48.0, 8.0, 4.0, 16.0, 0xFF, 255, 0x40, 0xFF);
-            RenderRect(-36.0, -54.0, 8.0, 10.0, 4.0, 0xFF, 255, 0x40, 0xFF);
-            RenderRect(-52.0, -54.0, 8.0, 10.0, 4.0, 0xFF, 255, 0x40, 0xFF);
-            RenderRect(-68.0, -54.0, 8.0, 10.0, 4.0, 0xFF, 255, 0x40, 0xFF);
-            RenderRect(-90.0, -26.0, 8.0, 4.0, 10.0, 0xFF, 255, 0x40, 0xFF);
+    if (Engine.gameType != GAME_SONICCD) {
+        if (self->playerID == SAVESEL_KNUX && self->flag) {
+            SetRenderVertexColor(0, 128, 0);
+            if (usePhysicalControls) {
+                RenderImage(88.0, 28.0, 8.0, 0.325, 0.325, 128.0, 128.0, 256.0, 256.0, 256.0, 256.0, 0xFF, self->texturePlayerSel);
+            }
+            else {
+                RenderImage(88.0, 28.0, 8.0, 0.3, 0.3, 128.0, 128.0, 256.0, 256.0, 256.0, 256.0, 0xFF, self->texturePlayerSel);
+            }
         }
         else {
-            SetRenderVertexColor(255, 0, 0);
-            RenderImage(-88.0, -56.0, 8.0, 0.125, 0.125, 128.0, 128.0, 256.0, 256.0, 256.0, 256.0, 0xFF, self->texturePlayerSel);
-            RenderRect(-96.0, -54.0, 8.0, 16.0, 4.0, 0xFF, 0xFF, 0xFF, 0xFF);
-            RenderRect(-90.0, -48.0, 8.0, 4.0, 16.0, 0xFF, 0xFF, 0xFF, 0xFF);
-            RenderRect(-36.0, -54.0, 8.0, 10.0, 4.0, 0xFF, 0xFF, 0xFF, 0xFF);
-            RenderRect(-52.0, -54.0, 8.0, 10.0, 4.0, 0xFF, 0xFF, 0xFF, 0xFF);
-            RenderRect(-68.0, -54.0, 8.0, 10.0, 4.0, 0xFF, 0xFF, 0xFF, 0xFF);
-            RenderRect(-90.0, -26.0, 8.0, 4.0, 10.0, 0xFF, 0xFF, 0xFF, 0xFF);
+            SetRenderVertexColor(0, 144, 0);
+            RenderImage(88.0, 28.0, 8.0, 0.3, 0.3, 128.0, 128.0, 256.0, 256.0, 256.0, 256.0, 0xFF, self->texturePlayerSel);
+        }
+
+        if (saveGame->knuxUnlocked)
+            SetRenderVertexColor(0xFF, 0xFF, 0xFF);
+        else
+            SetRenderVertexColor(0, 0, 0);
+        RenderImage(88.0, 32.0, 8.0, 0.3, 0.3, 128.0, 128.0, 256.0, 256.0, 0.0, 256.0, 0xFF, self->texturePlayerSel);
+    }
+
+    if (Engine.gameType != GAME_SONICCD) {
+        if (saveGame->tailsUnlocked) {
+            if (self->playerID == SAVESEL_ST && self->flag) {
+                SetRenderVertexColor(255, 64, 0);
+                RenderImage(-88.0, -56.0, 8.0, 0.135, 0.135, 128.0, 128.0, 256.0, 256.0, 256.0, 256.0, 0xFF, self->texturePlayerSel);
+                RenderRect(-96.0, -54.0, 8.0, 16.0, 4.0, 0xFF, 255, 0x40, 0xFF);
+                RenderRect(-90.0, -48.0, 8.0, 4.0, 16.0, 0xFF, 255, 0x40, 0xFF);
+                RenderRect(-36.0, -54.0, 8.0, 10.0, 4.0, 0xFF, 255, 0x40, 0xFF);
+                RenderRect(-52.0, -54.0, 8.0, 10.0, 4.0, 0xFF, 255, 0x40, 0xFF);
+                RenderRect(-68.0, -54.0, 8.0, 10.0, 4.0, 0xFF, 255, 0x40, 0xFF);
+                RenderRect(-90.0, -26.0, 8.0, 4.0, 10.0, 0xFF, 255, 0x40, 0xFF);
+            }
+            else {
+                SetRenderVertexColor(255, 0, 0);
+                RenderImage(-88.0, -56.0, 8.0, 0.125, 0.125, 128.0, 128.0, 256.0, 256.0, 256.0, 256.0, 0xFF, self->texturePlayerSel);
+                RenderRect(-96.0, -54.0, 8.0, 16.0, 4.0, 0xFF, 0xFF, 0xFF, 0xFF);
+                RenderRect(-90.0, -48.0, 8.0, 4.0, 16.0, 0xFF, 0xFF, 0xFF, 0xFF);
+                RenderRect(-36.0, -54.0, 8.0, 10.0, 4.0, 0xFF, 0xFF, 0xFF, 0xFF);
+                RenderRect(-52.0, -54.0, 8.0, 10.0, 4.0, 0xFF, 0xFF, 0xFF, 0xFF);
+                RenderRect(-68.0, -54.0, 8.0, 10.0, 4.0, 0xFF, 0xFF, 0xFF, 0xFF);
+                RenderRect(-90.0, -26.0, 8.0, 4.0, 10.0, 0xFF, 0xFF, 0xFF, 0xFF);
+            }
         }
     }
+
     if ((self->playerID == SAVESEL_SONIC || self->playerID == SAVESEL_ST) && self->flag)
         SetRenderVertexColor(0xFF, 0xFF, 0x40);
     else
         SetRenderVertexColor(0xFF, 0xFF, 0xFF);
     RenderText(self->textSonic, FONT_TEXT, self->sonicX, -22.0, 8.0, 0.2, 255);
 
-    if (saveGame->tailsUnlocked) {
-        if ((self->playerID == SAVESEL_TAILS || self->playerID == SAVESEL_ST) && self->flag)
-            SetRenderVertexColor(0xFF, 0xFF, 0x40);
-        else
-            SetRenderVertexColor(0xFF, 0xFF, 0xFF);
+    if (Engine.gameType != GAME_SONICCD) {
+        if (saveGame->tailsUnlocked) {
+            if ((self->playerID == SAVESEL_TAILS || self->playerID == SAVESEL_ST) && self->flag)
+                SetRenderVertexColor(0xFF, 0xFF, 0x40);
+            else
+                SetRenderVertexColor(0xFF, 0xFF, 0xFF);
+        }
+        else {
+            SetRenderVertexColor(0xA0, 0xA0, 0xA0);
+        }
+        RenderText(self->textTails, FONT_TEXT, self->tailsX, -64.0, 8.0, 0.2, 0xFF);
     }
     else {
-        SetRenderVertexColor(0xA0, 0xA0, 0xA0);
+        if (saveGame->tailsUnlocked) {
+            if ((self->playerID == SAVESEL_TAILS || self->playerID == SAVESEL_ST) && self->flag)
+                SetRenderVertexColor(0xFF, 0xFF, 0x40);
+            else
+                SetRenderVertexColor(0xFF, 0xFF, 0xFF);
+        }
+        else {
+            SetRenderVertexColor(0xA0, 0xA0, 0xA0);
+        }
+        RenderText(self->textTails, FONT_TEXT, 76.0, -22.0, 8.0, 0.2, 0xFF);
     }
-    RenderText(self->textTails, FONT_TEXT, self->tailsX, -64.0, 8.0, 0.2, 0xFF);
-    if (saveGame->knuxUnlocked) {
-        if (self->playerID == SAVESEL_KNUX && self->flag)
-            SetRenderVertexColor(0xFF, 0xFF, 0x40);
-        else
-            SetRenderVertexColor(0xFF, 0xFF, 0xFF);
-    }
-    else {
-        SetRenderVertexColor(0xA0, 0xA0, 0xA0);
-    }
-    RenderText(self->textKnux, FONT_TEXT, self->knuxX, -22.0, 8.0, 0.2, 0xFF);
 
+    if (Engine.gameType != GAME_SONICCD) {
+        if (saveGame->knuxUnlocked) {
+            if (self->playerID == SAVESEL_KNUX && self->flag)
+                SetRenderVertexColor(0xFF, 0xFF, 0x40);
+            else
+                SetRenderVertexColor(0xFF, 0xFF, 0xFF);
+        }
+        else {
+            SetRenderVertexColor(0xA0, 0xA0, 0xA0);
+        }
+        RenderText(self->textKnux, FONT_TEXT, self->knuxX, -22.0, 8.0, 0.2, 0xFF);
+    }
     NewRenderState();
     SetRenderMatrix(NULL);
     SetRenderVertexColor(0xFF, 0xFF, 0xFF);

@@ -341,7 +341,7 @@ void MenuControl_Main(void *objPtr)
                             CREATE_ENTITY(TimeAttack);
                         }
                         else{
-                            int id = GetSceneID(STAGELIST_PRESENTATION, "TITLE SCREEN");
+                            int id = GetSceneID(STAGELIST_PRESENTATION, "TIME ATTACK");
                             if (id == -1)
                                 id = 3;
                             InitStartingStage(STAGELIST_PRESENTATION, id, 0);
